@@ -191,14 +191,74 @@
 
   @media(max-width:900px){
     body{grid-template-columns:1fr}
-    aside{position:static;height:auto;flex-direction:row;align-items:center;padding:12px 16px;gap:10px;overflow-x:auto}
-    .marca{padding:0 8px 0 0}.marca b{font-size:17px}
-    nav{flex-direction:row;padding:0;flex:none;gap:4px}
-    nav button{padding:9px 11px;font-size:13px;white-space:nowrap}
+    aside{position:static;height:auto;display:block;padding:12px 14px 10px}
+    .marca{padding:0 0 10px}.marca b{font-size:17px}
+    nav{flex-direction:row;flex-wrap:wrap;padding:0;flex:none;gap:6px}
+    nav button{padding:8px 12px;font-size:13px;white-space:nowrap}
     nav .glifo{display:none}
     .pie{display:none}
-    header,section{padding-left:18px;padding-right:18px}
-    .demo-pie{margin:28px 18px 0}
+    header,section{padding-left:14px;padding-right:14px}
+    header{padding-top:16px;padding-bottom:16px;gap:12px}
+    header h1{font-size:18px}
+    .hoy{padding-left:12px;font-size:11px}
+    .demo-pie{margin:26px 14px 0;padding:16px 18px}
+  }
+
+  /* ---------- teléfono: las tablas se vuelven tarjetas ----------
+     Una tabla de seis columnas en un celular deja fuera de pantalla justo lo
+     que importa (el estado y los botones), y nadie hace scroll horizontal para
+     encontrarlo. En pantalla angosta cada fila pasa a ser una tarjeta con su
+     etiqueta encima de cada dato. */
+  @media(max-width:720px){
+    .aviso{flex-direction:column;align-items:flex-start;gap:12px;padding:16px 17px}
+    .aviso .btn{margin-left:0;width:100%;text-align:center;padding:11px 13px}
+    .aviso .ic{font-size:20px}
+
+    .cifras{grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+    .cifra{padding:14px 15px}
+    .cifra b{font-size:22px}
+    .cifra span,.cifra i{font-size:11px}
+
+    .panel-top{padding:15px 16px}
+    .panel-top .cola{margin-left:0;width:100%}
+    .tabla-scroll{overflow-x:visible}
+    table{min-width:0;display:block;font-size:14px}
+    thead{display:none}
+    tbody{display:block}
+    tbody tr{
+      display:block;background:#fff;border:1px solid var(--linea);
+      border-radius:12px;padding:14px 15px;margin:0 15px 12px
+    }
+    tbody tr:first-child{margin-top:15px}
+    tbody tr:hover{background:#fff}
+    tbody td{display:block;border:0;padding:0 0 10px}
+    tbody td:last-child{padding-bottom:0}
+    tbody td[data-etq]::before{
+      content:attr(data-etq);display:block;font-size:10px;text-transform:uppercase;
+      letter-spacing:.07em;color:var(--gris);font-weight:700;margin-bottom:3px
+    }
+    tbody td.tit-fila{font-size:15px}
+    tbody td.tit-fila b{font-size:15px}
+    tbody td.par{display:inline-block;width:48%;vertical-align:top}
+    tbody td.acciones{
+      display:flex;gap:8px;padding-top:12px;margin-top:2px;border-top:1px solid #eef3f7;text-align:left
+    }
+    tbody td.acciones .btn{flex:1;text-align:center;padding:10px 12px;font-size:13px}
+    .barra{width:100%;max-width:150px}
+
+    .grafica{padding:20px 10px !important;gap:5px !important;height:180px !important}
+    .monto-barra{font-size:9.5px !important;letter-spacing:-.04em}
+    .grafica span{font-size:11px !important}
+
+    .fx-top{padding:17px 18px}.fx-cuerpo{padding:17px 18px;max-height:62vh}.fx-pie{padding:13px 18px}
+    .fx-pie .btn{flex:1;text-align:center;padding:11px 13px}
+  }
+
+  @media(max-width:400px){
+    .cifras{grid-template-columns:1fr}
+    .datos{grid-template-columns:1fr;gap:11px}
+    tbody tr{margin-left:0;margin-right:0}
+    .panel{border-radius:12px}
   }
 </style>
 </head>
@@ -421,12 +481,12 @@
 
   function filaEquipo(e){
     return '<tr data-eq="'+e.id+'">'+
-      '<td><b>'+esc(e.cliente.nom)+'</b><small>'+esc(e.cliente.col)+' · '+esc(e.cliente.tel)+'</small></td>'+
-      '<td><b>'+esc(e.marca)+' '+esc(e.tipo)+'</b><small>'+e.ton+' ton · '+esc(e.refri)+' · '+esc(e.ubi)+'</small></td>'+
-      '<td class="num">'+dl(e.fUltimo)+'</td>'+
-      '<td class="num">'+dl(e.fProximo)+'</td>'+
-      '<td>'+chipEstado(e)+'</td>'+
-      '<td style="text-align:right;white-space:nowrap">'+
+      '<td class="tit-fila"><b>'+esc(e.cliente.nom)+'</b><small>'+esc(e.cliente.col)+' · '+esc(e.cliente.tel)+'</small></td>'+
+      '<td data-etq="Equipo"><b>'+esc(e.marca)+' '+esc(e.tipo)+'</b><small>'+e.ton+' ton · '+esc(e.refri)+' · '+esc(e.ubi)+'</small></td>'+
+      '<td class="num par" data-etq="Último servicio">'+dl(e.fUltimo)+'</td>'+
+      '<td class="num par" data-etq="Le toca">'+dl(e.fProximo)+'</td>'+
+      '<td data-etq="Estado">'+chipEstado(e)+'</td>'+
+      '<td class="acciones" style="text-align:right;white-space:nowrap">'+
         '<button class="btn fantasma" data-ver="'+e.id+'">Ver</button> '+
         '<button class="btn wa" data-wa="'+e.id+'"'+(e.atendido?" disabled":"")+'>Avisar</button>'+
       '</td></tr>';
@@ -474,12 +534,12 @@
       var pend = eq.filter(function(e){ return !e.atendido && e.estado!=="aldia"; }).length;
       var gasto = eq.length * (c.tipo==="negocio"?2400:1500);
       return '<tr>'+
-        '<td><b>'+esc(c.nom)+'</b><small>'+esc(c.col)+' · cliente desde '+c.desde+'</small></td>'+
-        '<td><span class="chip '+(c.tipo==="negocio"?"azul":"gris")+'">'+(c.tipo==="negocio"?"Negocio":"Casa")+'</span></td>'+
-        '<td class="num">'+eq.length+'</td>'+
-        '<td>'+(pend?'<span class="chip rojo">'+pend+' pendiente'+(pend===1?"":"s")+'</span>':'<span class="chip verde">Al día</span>')+'</td>'+
-        '<td class="num">'+pesos(gasto)+'</td>'+
-        '<td class="num">'+esc(c.tel)+'</td>'+
+        '<td class="tit-fila"><b>'+esc(c.nom)+'</b><small>'+esc(c.col)+' · cliente desde '+c.desde+'</small></td>'+
+        '<td data-etq="Tipo"><span class="chip '+(c.tipo==="negocio"?"azul":"gris")+'">'+(c.tipo==="negocio"?"Negocio":"Casa")+'</span></td>'+
+        '<td class="num par" data-etq="Equipos">'+eq.length+'</td>'+
+        '<td data-etq="Estado">'+(pend?'<span class="chip rojo">'+pend+' pendiente'+(pend===1?"":"s")+'</span>':'<span class="chip verde">Al día</span>')+'</td>'+
+        '<td class="num par" data-etq="Facturado al año">'+pesos(gasto)+'</td>'+
+        '<td class="num" data-etq="Teléfono">'+esc(c.tel)+'</td>'+
       '</tr>';
     }).join("");
     $("#v-clientes").innerHTML =
@@ -503,12 +563,12 @@
               : r.stock<r.min ? '<span class="chip ambar">Bajo mínimo</span>'
               : '<span class="chip verde">Suficiente</span>';
       return '<tr>'+
-        '<td><b>'+esc(r.nom)+'</b><small class="num">'+esc(r.sku)+'</small></td>'+
-        '<td><b class="num">'+r.stock+'</b><div class="barra"><i style="width:'+pct+'%;background:'+col+'"></i></div></td>'+
-        '<td class="num">'+r.min+'</td>'+
-        '<td>'+et+'</td>'+
-        '<td class="num">'+pesos(r.costo)+'</td>'+
-        '<td class="num">'+pesos(r.stock*r.costo)+'</td>'+
+        '<td class="tit-fila"><b>'+esc(r.nom)+'</b><small class="num">'+esc(r.sku)+'</small></td>'+
+        '<td data-etq="En existencia"><b class="num">'+r.stock+'</b><div class="barra"><i style="width:'+pct+'%;background:'+col+'"></i></div></td>'+
+        '<td class="num par" data-etq="Mínimo">'+r.min+'</td>'+
+        '<td data-etq="Estado">'+et+'</td>'+
+        '<td class="num par" data-etq="Costo">'+pesos(r.costo)+'</td>'+
+        '<td class="num par" data-etq="Valor">'+pesos(r.stock*r.costo)+'</td>'+
       '</tr>';
     }).join("");
     $("#v-inventario").innerHTML =
@@ -534,18 +594,19 @@
       var h = Math.round(m.monto/max*140);
       var act = m.mes==="Ago";
       return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:8px">'+
-        '<b class="num" style="font-size:12px;color:var(--gris);font-weight:600">'+pesos(m.monto)+'</b>'+
+        '<b class="num monto-barra" style="font-size:12px;color:var(--gris);font-weight:600">'+pesos(m.monto)+'</b>'+
         '<div style="width:100%;max-width:56px;height:'+h+'px;border-radius:8px 8px 3px 3px;background:'+
           (act?"linear-gradient(180deg,var(--cyan),var(--azul))":"#d6e4ef")+'"></div>'+
         '<span style="font-size:12px;font-weight:600;color:'+(act?"var(--tinta)":"var(--gris)")+'">'+m.mes+'</span>'+
       '</div>';
     }).join("");
     var filas = INGRESOS.slice().reverse().map(function(m){
-      return '<tr><td><b>'+m.mes+' 2026</b></td>'+
-        '<td class="num">'+m.prev+'</td><td class="num">'+m.corr+'</td>'+
-        '<td class="num">'+(m.prev+m.corr)+'</td>'+
-        '<td class="num"><b>'+pesos(m.monto)+'</b></td>'+
-        '<td class="num">'+pesos(Math.round(m.monto/(m.prev+m.corr)))+'</td></tr>';
+      return '<tr><td class="tit-fila"><b>'+m.mes+' 2026</b></td>'+
+        '<td class="num par" data-etq="Preventivos">'+m.prev+'</td>'+
+        '<td class="num par" data-etq="Correctivos">'+m.corr+'</td>'+
+        '<td class="num par" data-etq="Total visitas">'+(m.prev+m.corr)+'</td>'+
+        '<td class="num par" data-etq="Cobrado"><b>'+pesos(m.monto)+'</b></td>'+
+        '<td class="num par" data-etq="Por visita">'+pesos(Math.round(m.monto/(m.prev+m.corr)))+'</td></tr>';
     }).join("");
     $("#v-numeros").innerHTML =
       '<div class="cifras">'+
@@ -555,7 +616,7 @@
       '</div>'+
       '<div class="panel"><div class="panel-top"><div><h3>Cobrado por mes</h3>'+
       '<p class="sub" style="margin:2px 0 0">Mayo a julio es temporada alta en Cuernavaca; el preventivo es lo que sostiene los meses flojos.</p></div></div>'+
-      '<div style="padding:26px 22px;display:flex;align-items:flex-end;gap:14px;height:220px">'+barras+'</div></div>'+
+      '<div class="grafica" style="padding:26px 22px;display:flex;align-items:flex-end;gap:14px;height:220px">'+barras+'</div></div>'+
       '<div class="panel"><div class="panel-top"><h3>Desglose</h3></div>'+
       '<div class="tabla-scroll"><table><thead><tr><th>Mes</th><th>Preventivos</th><th>Correctivos</th><th>Total visitas</th><th>Cobrado</th><th>Por visita</th></tr></thead>'+
       '<tbody>'+filas+'</tbody></table></div></div>';
