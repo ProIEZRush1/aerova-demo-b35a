@@ -1,0 +1,635 @@
+<!doctype html>
+<html lang="es-MX">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AEROVA · Sistema de servicio</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --azul:#0877e8; --cyan:#55ddff; --cyan-h:#20c7f4;
+    --tinta:#061722; --tinta-2:#102333; --tinta-3:#1b3a52;
+    --gris:#687887; --linea:#e3e9ee;
+    --fondo:#f4f8fb; --claro:#eaf8ff; --blanco:#fff;
+    --rojo:#d92d3c; --ambar:#e08700; --verde:#0f9d58;
+    --r:14px; --sombra:0 1px 2px rgba(6,23,34,.05), 0 8px 24px -12px rgba(6,23,34,.18);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    font-family:Inter,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    background:var(--fondo); color:var(--tinta); -webkit-font-smoothing:antialiased;
+    display:grid; grid-template-columns:236px 1fr; min-height:100vh;
+  }
+  .num{font-family:"JetBrains Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+
+  /* ---------- barra lateral ---------- */
+  aside{
+    background:var(--tinta); color:#c7d6e2; padding:26px 0 20px;
+    display:flex; flex-direction:column; position:sticky; top:0; height:100vh;
+  }
+  .marca{padding:0 24px 26px; display:flex; align-items:center; gap:11px}
+  .rombo{
+    width:30px;height:30px;flex:none;border-radius:8px;
+    background:linear-gradient(150deg,var(--cyan),var(--azul));
+    display:grid;place-items:center;font-size:15px
+  }
+  .marca b{
+    font-family:"Barlow Condensed",Inter,sans-serif; font-weight:700;
+    letter-spacing:.22em; font-size:20px; color:#fff
+  }
+  nav{display:flex;flex-direction:column;gap:2px;padding:0 12px;flex:1}
+  nav button{
+    all:unset; cursor:pointer; padding:11px 13px; border-radius:10px;
+    font-size:14px; font-weight:500; color:#9fb3c4; display:flex;
+    align-items:center; gap:11px; transition:.14s;
+  }
+  nav button:hover{background:rgba(255,255,255,.05); color:#e6f1f8}
+  nav button[aria-current="true"]{background:var(--azul); color:#fff; font-weight:600}
+  nav .glifo{width:18px;text-align:center;font-size:14px;opacity:.95}
+  nav .pip{
+    margin-left:auto; background:var(--rojo); color:#fff; font-size:11px; font-weight:700;
+    min-width:19px; height:19px; border-radius:10px; display:grid; place-items:center; padding:0 5px
+  }
+  nav button[aria-current="true"] .pip{background:#fff;color:var(--rojo)}
+  .pie{padding:16px 24px 0; border-top:1px solid rgba(255,255,255,.08); margin-top:12px}
+  .pie small{display:block;font-size:11px;line-height:1.6;color:#66808f}
+  .pie a{color:var(--cyan);text-decoration:none}
+
+  /* ---------- encabezado ---------- */
+  main{min-width:0}
+  header{
+    background:var(--blanco); border-bottom:1px solid var(--linea);
+    padding:20px 34px; display:flex; align-items:center; gap:20px;
+    position:sticky; top:0; z-index:20;
+  }
+  header h1{font-size:20px;font-weight:700;letter-spacing:-.02em}
+  header p{font-size:13px;color:var(--gris);margin-top:2px}
+  .hoy{
+    margin-left:auto; text-align:right; font-size:12px; color:var(--gris);
+    border-left:1px solid var(--linea); padding-left:20px
+  }
+  .hoy b{display:block;font-size:14px;color:var(--tinta);font-weight:600}
+  section{padding:26px 34px 60px}
+  section[hidden]{display:none}
+
+  /* ---------- tarjetas de cifras ---------- */
+  .cifras{display:grid;grid-template-columns:repeat(auto-fit,minmax(196px,1fr));gap:14px;margin-bottom:26px}
+  .cifra{background:var(--blanco);border:1px solid var(--linea);border-radius:var(--r);padding:17px 19px;box-shadow:var(--sombra)}
+  .cifra span{font-size:12px;color:var(--gris);font-weight:500;display:block;margin-bottom:7px}
+  .cifra b{font-size:27px;font-weight:700;letter-spacing:-.03em;display:block;line-height:1.05}
+  .cifra i{font-style:normal;font-size:12px;color:var(--gris);display:block;margin-top:5px}
+  .cifra.alerta{border-color:#f5c6ca;background:linear-gradient(180deg,#fff,#fff8f8)}
+  .cifra.alerta b{color:var(--rojo)}
+
+  h2.tit{font-size:15px;font-weight:700;margin:0 0 4px;letter-spacing:-.01em}
+  p.sub{font-size:13px;color:var(--gris);margin-bottom:15px}
+
+  /* ---------- panel/tabla ---------- */
+  .panel{background:var(--blanco);border:1px solid var(--linea);border-radius:var(--r);box-shadow:var(--sombra);overflow:hidden}
+  .panel + .panel{margin-top:22px}
+  .panel-top{padding:16px 19px;border-bottom:1px solid var(--linea);display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .panel-top h3{font-size:14px;font-weight:700}
+  .panel-top .cola{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+  .tabla-scroll{overflow-x:auto}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:640px}
+  th{
+    text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.07em;
+    color:var(--gris);font-weight:700;padding:11px 19px;background:#fafcfe;border-bottom:1px solid var(--linea);white-space:nowrap
+  }
+  td{padding:13px 19px;border-bottom:1px solid #eef3f7;vertical-align:middle}
+  tr:last-child td{border-bottom:0}
+  tbody tr{transition:background .12s}
+  tbody tr:hover{background:#f7fbfe}
+  td b{font-weight:600}
+  td small{display:block;color:var(--gris);font-size:12px;margin-top:2px}
+
+  .chip{
+    display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:600;
+    padding:4px 9px;border-radius:999px;white-space:nowrap
+  }
+  .chip.rojo{background:#fdeaec;color:var(--rojo)}
+  .chip.ambar{background:#fdf3e2;color:var(--ambar)}
+  .chip.verde{background:#e6f5ee;color:var(--verde)}
+  .chip.gris{background:#eef2f6;color:var(--gris)}
+  .chip.azul{background:var(--claro);color:#0b5cb0}
+
+  .btn{
+    all:unset;cursor:pointer;font-size:12.5px;font-weight:600;padding:7px 13px;border-radius:9px;
+    background:var(--azul);color:#fff;transition:.14s;white-space:nowrap
+  }
+  .btn:hover{background:#0668cd}
+  .btn.fantasma{background:transparent;color:var(--azul);box-shadow:inset 0 0 0 1px #c3ddf7}
+  .btn.fantasma:hover{background:var(--claro)}
+  .btn.wa{background:#22a366}
+  .btn.wa:hover{background:#1c8b56}
+  .btn:disabled{opacity:.45;cursor:default;background:var(--azul)}
+
+  .filtro{
+    all:unset;cursor:pointer;font-size:12.5px;font-weight:600;color:var(--gris);
+    padding:6px 12px;border-radius:999px;background:#eef2f6
+  }
+  .filtro[aria-pressed="true"]{background:var(--tinta);color:#fff}
+
+  .vacio{padding:44px 20px;text-align:center;color:var(--gris);font-size:13.5px}
+  .vacio b{display:block;font-size:15px;color:var(--tinta);margin-bottom:5px}
+
+  /* ---------- barra de aviso ---------- */
+  .aviso{
+    background:linear-gradient(100deg,var(--tinta),#123047); color:#dbeaf5;
+    border-radius:var(--r); padding:17px 21px; margin-bottom:24px;
+    display:flex; align-items:center; gap:16px; box-shadow:var(--sombra)
+  }
+  .aviso .ic{font-size:22px;flex:none}
+  .aviso b{color:#fff;font-size:14px;display:block;margin-bottom:3px}
+  .aviso p{font-size:13px;line-height:1.5;color:#a9c4d6}
+  .aviso .btn{margin-left:auto;flex:none;background:var(--cyan);color:var(--tinta)}
+  .aviso .btn:hover{background:var(--cyan-h)}
+
+  /* ---------- barra de inventario ---------- */
+  .barra{height:6px;background:#eef2f6;border-radius:99px;overflow:hidden;width:104px;margin-top:6px}
+  .barra i{display:block;height:100%;border-radius:99px}
+
+  /* ---------- ficha de equipo ---------- */
+  dialog{
+    border:0;border-radius:16px;padding:0;max-width:560px;width:calc(100% - 32px);
+    box-shadow:0 24px 70px -18px rgba(6,23,34,.5)
+  }
+  dialog::backdrop{background:rgba(6,23,34,.45)}
+  .fx-top{padding:20px 24px;border-bottom:1px solid var(--linea);display:flex;align-items:flex-start;gap:14px}
+  .fx-top h3{font-size:17px;font-weight:700;letter-spacing:-.02em}
+  .fx-top p{font-size:13px;color:var(--gris);margin-top:3px}
+  .fx-top button{all:unset;cursor:pointer;margin-left:auto;color:var(--gris);font-size:22px;line-height:1}
+  .fx-cuerpo{padding:20px 24px;max-height:56vh;overflow:auto}
+  .datos{display:grid;grid-template-columns:1fr 1fr;gap:13px 20px;margin-bottom:22px}
+  .datos div span{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--gris);font-weight:700;margin-bottom:3px}
+  .datos div b{font-size:14px;font-weight:600}
+  .linea-t{position:relative;padding-left:22px;padding-bottom:16px;border-left:2px solid var(--linea)}
+  .linea-t:last-child{border-left-color:transparent;padding-bottom:0}
+  .linea-t::before{content:"";position:absolute;left:-6px;top:3px;width:10px;height:10px;border-radius:50%;background:var(--azul)}
+  .linea-t time{font-size:11.5px;color:var(--gris);font-weight:600}
+  .linea-t b{display:block;font-size:13.5px;margin:2px 0}
+  .linea-t p{font-size:12.5px;color:var(--gris);line-height:1.45}
+  .fx-pie{padding:15px 24px;border-top:1px solid var(--linea);background:#fafcfe;display:flex;gap:9px}
+
+  /* ---------- pie de demo ---------- */
+  .demo-pie{
+    margin:36px 34px 0;padding:20px 24px;border-radius:var(--r);
+    background:var(--blanco);border:1px dashed #c3ddf7;font-size:13px;color:var(--gris);line-height:1.6
+  }
+  .demo-pie b{color:var(--tinta)}
+  .demo-pie a{color:var(--azul);font-weight:600;text-decoration:none}
+
+  .toast{
+    position:fixed;left:50%;bottom:26px;transform:translate(-50%,90px);
+    background:var(--tinta);color:#fff;padding:12px 20px;border-radius:11px;font-size:13.5px;
+    font-weight:500;box-shadow:0 14px 34px -10px rgba(6,23,34,.55);transition:transform .28s cubic-bezier(.2,.8,.2,1);z-index:99
+  }
+  .toast.ver{transform:translate(-50%,0)}
+
+  @media(max-width:900px){
+    body{grid-template-columns:1fr}
+    aside{position:static;height:auto;flex-direction:row;align-items:center;padding:12px 16px;gap:10px;overflow-x:auto}
+    .marca{padding:0 8px 0 0}.marca b{font-size:17px}
+    nav{flex-direction:row;padding:0;flex:none;gap:4px}
+    nav button{padding:9px 11px;font-size:13px;white-space:nowrap}
+    nav .glifo{display:none}
+    .pie{display:none}
+    header,section{padding-left:18px;padding-right:18px}
+    .demo-pie{margin:28px 18px 0}
+  }
+</style>
+</head>
+<body>
+
+<aside>
+  <div class="marca"><div class="rombo">❄</div><b>AEROVA</b></div>
+  <nav id="nav"></nav>
+  <div class="pie">
+    <small>Demostración preparada para AEROVA<br>por <a href="https://overcloud.us">Overcloud</a></small>
+  </div>
+</aside>
+
+<main>
+  <header>
+    <div>
+      <h1 id="tituloVista">Hoy</h1>
+      <p id="subVista">Lo que toca atender</p>
+    </div>
+    <div class="hoy"><b id="fechaHoy"></b>Cuernavaca, Mor.</div>
+  </header>
+
+  <section id="v-hoy"></section>
+  <section id="v-equipos" hidden></section>
+  <section id="v-clientes" hidden></section>
+  <section id="v-inventario" hidden></section>
+  <section id="v-numeros" hidden></section>
+
+  <div class="demo-pie">
+    <b>Esto es una demostración con datos de ejemplo.</b> Los clientes, equipos y montos son
+    inventados para que se vea cómo trabajaría con su operación real. Nada de lo que toque aquí
+    se guarda. — <a href="https://overcloud.us">Overcloud</a>
+  </div>
+</main>
+
+<dialog id="ficha"></dialog>
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  // La demo se congela en una fecha fija para que los "vencidos" siempre se
+  // vean vencidos, sin importar cuándo la abran.
+  var HOY = new Date(2026, 7, 26); // 26 ago 2026
+  var MES = ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+  var MESL = ["enero","febrero","marzo","abril","mayo","junio","julio","agosto","septiembre","octubre","noviembre","diciembre"];
+
+  function dl(d){ return d.getDate() + " " + MES[d.getMonth()] + " " + d.getFullYear(); }
+  function masMeses(d,m){ var x=new Date(d.getTime()); x.setMonth(x.getMonth()+m); return x; }
+  function dias(a,b){ return Math.round((b-a)/86400000); }
+  function pesos(n){ return "$" + n.toLocaleString("es-MX"); }
+
+  // ---------------------------------------------------------------- datos
+  // Colonias y equipos verosímiles de Cuernavaca: minisplits de 1 a 2 toneladas
+  // en casa, cassettes y paquetes en negocio.
+  var CLIENTES = [
+    {id:1,  nom:"Hotel Villa Bejar",        tipo:"negocio", col:"Tlaltenango",     tel:"777 312 4488", desde:"2024"},
+    {id:2,  nom:"Restaurante La Maga",      tipo:"negocio", col:"Centro",          tel:"777 318 9021", desde:"2025"},
+    {id:3,  nom:"Sra. Patricia Olvera",     tipo:"casa",    col:"Vista Hermosa",   tel:"777 145 3390", desde:"2024"},
+    {id:4,  nom:"Consultorio Dr. Rivas",    tipo:"negocio", col:"Delicias",        tel:"777 322 7715", desde:"2025"},
+    {id:5,  nom:"Fam. Guzmán Robles",       tipo:"casa",    col:"Palmira",         tel:"777 402 1188", desde:"2023"},
+    {id:6,  nom:"Ópticas Del Valle",        tipo:"negocio", col:"Reforma",         tel:"777 310 5567", desde:"2025"},
+    {id:7,  nom:"Sr. Joaquín Medina",       tipo:"casa",    col:"Lomas de Cortés", tel:"777 188 6042", desde:"2026"},
+    {id:8,  nom:"Notaría 9",                tipo:"negocio", col:"Acapantzingo",    tel:"777 314 2270", desde:"2024"},
+    {id:9,  nom:"Fam. Cárdenas Luna",       tipo:"casa",    col:"Ocotepec",        tel:"777 233 8814", desde:"2025"},
+    {id:10, nom:"Cafetería Amate",          tipo:"negocio", col:"Chipitlán",       tel:"777 190 4433", desde:"2026"}
+  ];
+
+  // ultimo: [año, mes(0-11), día] · cada: meses entre mantenimientos
+  var EQUIPOS = [
+    {id:101, cli:1,  marca:"York",    tipo:"Paquete",   ton:5,   refri:"R-410A", ubi:"Lobby",              ultimo:[2026,1,18], cada:4},
+    {id:102, cli:1,  marca:"Carrier", tipo:"Cassette",  ton:3,   refri:"R-410A", ubi:"Salón de eventos",   ultimo:[2026,2,18], cada:4},
+    {id:103, cli:1,  marca:"Mirage",  tipo:"Minisplit", ton:2,   refri:"R-410A", ubi:"Habitación 12",      ultimo:[2026,5,20], cada:6},
+    {id:104, cli:2,  marca:"Midea",   tipo:"Cassette",  ton:3,   refri:"R-410A", ubi:"Comedor principal",  ultimo:[2026,0,22], cada:4},
+    {id:105, cli:2,  marca:"Mirage",  tipo:"Minisplit", ton:1.5, refri:"R-32",   ubi:"Cocina",             ultimo:[2026,3,9], cada:3},
+    {id:106, cli:3,  marca:"LG",      tipo:"Minisplit", ton:1.5, refri:"R-410A", ubi:"Recámara principal", ultimo:[2026,1,27], cada:6},
+    {id:107, cli:3,  marca:"LG",      tipo:"Minisplit", ton:1,   refri:"R-410A", ubi:"Estudio",            ultimo:[2026,1,27], cada:6},
+    {id:108, cli:4,  marca:"Samsung", tipo:"Minisplit", ton:1.5, refri:"R-410A", ubi:"Consultorio 1",      ultimo:[2026,4,14], cada:6},
+    {id:109, cli:4,  marca:"Samsung", tipo:"Minisplit", ton:1,   refri:"R-410A", ubi:"Sala de espera",     ultimo:[2026,4,14], cada:6},
+    {id:110, cli:5,  marca:"Carrier", tipo:"Minisplit", ton:2,   refri:"R-22",   ubi:"Sala",               ultimo:[2025,10,8],cada:6},
+    {id:111, cli:5,  marca:"Mirage",  tipo:"Ventana",   ton:1,   refri:"R-22",   ubi:"Recámara 2",         ultimo:[2025,10,8],cada:6},
+    {id:112, cli:6,  marca:"Midea",   tipo:"Minisplit", ton:2,   refri:"R-32",   ubi:"Piso de venta",      ultimo:[2026,6,2], cada:6},
+    {id:113, cli:7,  marca:"Mirage",  tipo:"Minisplit", ton:1.5, refri:"R-32",   ubi:"Recámara",           ultimo:[2026,7,11], cada:6},
+    {id:114, cli:8,  marca:"Carrier", tipo:"Cassette",  ton:3,   refri:"R-410A", ubi:"Sala de firmas",     ultimo:[2026,2,5], cada:4},
+    {id:115, cli:8,  marca:"LG",      tipo:"Minisplit", ton:1.5, refri:"R-410A", ubi:"Archivo",            ultimo:[2026,2,5], cada:6},
+    {id:116, cli:9,  marca:"Samsung", tipo:"Minisplit", ton:1.5, refri:"R-32",   ubi:"Sala",               ultimo:[2026,6,19], cada:6},
+    {id:117, cli:10, marca:"Midea",   tipo:"Minisplit", ton:2,   refri:"R-32",   ubi:"Área de mesas",      ultimo:[2026,7,4], cada:4}
+  ];
+
+  var HISTORIAL = {
+    101:[["2026-02-18","Mantenimiento preventivo","Lavado de serpentín y cambio de filtros. Presiones normales.",1250],
+         ["2025-10-14","Mantenimiento preventivo","Limpieza general. Se recomendó cambiar contactor.",1250],
+         ["2025-06-03","Correctivo","Cambio de contactor quemado.",1850]],
+    104:[["2026-01-22","Mantenimiento preventivo","Lavado de cassette. Drenaje destapado.",980],
+         ["2025-09-18","Correctivo","Fuga en tubería de drenaje, se resanó.",1400]],
+    110:[["2025-11-08","Mantenimiento preventivo","Equipo con R-22. Se avisó al cliente que ese gas ya no se consigue fácil.",900],
+         ["2025-05-12","Mantenimiento preventivo","Carga de gas, tenía 20 psi por debajo.",1600]],
+    106:[["2026-02-27","Mantenimiento preventivo","Los dos equipos de la casa el mismo día.",1400]],
+    114:[["2026-03-05","Mantenimiento preventivo","Lavado de cassette y desinfección.",980]]
+  };
+
+  var REFACCIONES = [
+    {sku:"FIL-MS-01", nom:"Filtro lavable minisplit 1–1.5 ton", stock:14, min:8,  costo:120},
+    {sku:"FIL-MS-02", nom:"Filtro lavable minisplit 2 ton",     stock:6,  min:8,  costo:145},
+    {sku:"GAS-410A",  nom:"Refrigerante R-410A (boya 11.3 kg)", stock:1,  min:2,  costo:3200},
+    {sku:"GAS-R32",   nom:"Refrigerante R-32 (boya 9 kg)",      stock:2,  min:2,  costo:2950},
+    {sku:"GAS-R22",   nom:"Refrigerante R-22 (boya 13.6 kg)",   stock:0,  min:1,  costo:5400},
+    {sku:"CAP-35-5",  nom:"Capacitor 35+5 µF",                  stock:9,  min:4,  costo:185},
+    {sku:"CON-25A",   nom:"Contactor 25 A 2 polos",             stock:3,  min:4,  costo:410},
+    {sku:"LIM-SERP",  nom:"Limpiador de serpentín (galón)",     stock:5,  min:3,  costo:390},
+    {sku:"TUB-3/8",   nom:"Tubería de cobre 3/8 (metro)",       stock:28, min:15, costo:95},
+    {sku:"BOM-DRE",   nom:"Bomba de condensados",               stock:2,  min:2,  costo:890}
+  ];
+
+  var INGRESOS = [
+    {mes:"Mar", prev:14, corr:5, monto:24800},
+    {mes:"Abr", prev:17, corr:4, monto:27300},
+    {mes:"May", prev:22, corr:7, monto:38900},
+    {mes:"Jun", prev:29, corr:9, monto:51200},
+    {mes:"Jul", prev:31, corr:11,monto:58400},
+    {mes:"Ago", prev:19, corr:6, monto:36150}
+  ];
+
+  // ------------------------------------------------------ cálculo derivado
+  var cliDe = {}; CLIENTES.forEach(function(c){ cliDe[c.id]=c; });
+
+  EQUIPOS.forEach(function(e){
+    e.fUltimo   = new Date(e.ultimo[0], e.ultimo[1], e.ultimo[2]);
+    e.fProximo  = masMeses(e.fUltimo, e.cada);
+    e.dias      = dias(HOY, e.fProximo);           // negativo = vencido
+    e.estado    = e.dias < 0 ? "vencido" : (e.dias <= 30 ? "proximo" : "aldia");
+    e.cliente   = cliDe[e.cli];
+    e.atendido  = false;
+  });
+
+  function porVencer(){ return EQUIPOS.filter(function(e){ return !e.atendido && e.estado!=="aldia"; }); }
+  function vencidos(){  return EQUIPOS.filter(function(e){ return !e.atendido && e.estado==="vencido"; }); }
+
+  function chipEstado(e){
+    if(e.atendido) return '<span class="chip verde">Agendado</span>';
+    if(e.estado==="vencido"){
+      var d=Math.abs(e.dias);
+      return '<span class="chip rojo">Vencido · '+d+' día'+(d===1?"":"s")+'</span>';
+    }
+    if(e.estado==="proximo") return '<span class="chip ambar">En '+e.dias+' días</span>';
+    return '<span class="chip verde">Al día</span>';
+  }
+
+  // ------------------------------------------------------------ utilidades
+  var $ = function(s){ return document.querySelector(s); };
+  var toastT;
+  function avisar(t){
+    var el=$("#toast"); el.textContent=t; el.classList.add("ver");
+    clearTimeout(toastT); toastT=setTimeout(function(){ el.classList.remove("ver"); },2600);
+  }
+  function esc(s){ return String(s).replace(/[&<>"]/g,function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+
+  // ------------------------------------------------------------- navegación
+  var VISTAS = [
+    {id:"hoy",        glifo:"◉", nom:"Hoy",        tit:"Hoy",                sub:"Lo que toca atender"},
+    {id:"equipos",    glifo:"❄", nom:"Equipos",    tit:"Equipos",            sub:"Cada aire con su historia y su próximo servicio"},
+    {id:"clientes",   glifo:"◍", nom:"Clientes",   tit:"Clientes",           sub:"Quién es quién y cuántos equipos tiene"},
+    {id:"inventario", glifo:"▤", nom:"Inventario", tit:"Inventario",         sub:"Refacciones y gas en existencia"},
+    {id:"numeros",    glifo:"▲", nom:"Números",    tit:"Números del mes",    sub:"Cuánto entró y de dónde"}
+  ];
+
+  function pintarNav(){
+    $("#nav").innerHTML = VISTAS.map(function(v){
+      var n = v.id==="hoy" ? porVencer().length : (v.id==="inventario" ? REFACCIONES.filter(function(r){return r.stock<r.min;}).length : 0);
+      return '<button data-v="'+v.id+'" aria-current="'+(v.id===actual)+'">'+
+             '<span class="glifo">'+v.glifo+'</span>'+v.nom+
+             (n?'<span class="pip">'+n+'</span>':'')+'</button>';
+    }).join("");
+    Array.prototype.forEach.call($("#nav").children, function(b){
+      b.onclick=function(){ ir(b.dataset.v); };
+    });
+  }
+
+  var actual="hoy";
+  function ir(id){
+    actual=id;
+    VISTAS.forEach(function(v){ $("#v-"+v.id).hidden = (v.id!==id); });
+    var v = VISTAS.filter(function(x){return x.id===id;})[0];
+    $("#tituloVista").textContent=v.tit; $("#subVista").textContent=v.sub;
+    pintarNav(); pintar(id); window.scrollTo({top:0,behavior:"smooth"});
+  }
+
+  // ------------------------------------------------------------- las vistas
+  function vistaHoy(){
+    var venc = vencidos(), prox = porVencer().filter(function(e){return e.estado==="proximo";});
+    var perdido = venc.reduce(function(a,e){ return a + (e.cliente.tipo==="negocio"?1100:850); },0);
+
+    var html =
+      '<div class="aviso">'+
+        '<div class="ic">⚠</div>'+
+        '<div><b>'+venc.length+' equipos ya se pasaron de su mantenimiento</b>'+
+        '<p>Son '+pesos(perdido)+' en servicios que ya se pudieron haber cobrado. El sistema los detecta solo; nada más hay que avisarles.</p></div>'+
+        '<button class="btn" id="avisarTodos">Avisar a todos por WhatsApp</button>'+
+      '</div>'+
+      '<div class="cifras">'+
+        tarjeta("Vencidos", venc.length, "requieren aviso hoy", true)+
+        tarjeta("Por vencer", prox.length, "en los próximos 30 días")+
+        tarjeta("Equipos registrados", EQUIPOS.length, "de "+CLIENTES.length+" clientes")+
+        tarjeta("Cobrado en agosto", pesos(36150), "25 servicios")+
+      '</div>'+
+      tablaEquipos(porVencer(), "Pendientes de atender", "Ordenados por el que lleva más tiempo esperando");
+    $("#v-hoy").innerHTML = html;
+
+    var b=$("#avisarTodos");
+    if(b) b.onclick=function(){
+      avisar("Se enviaron "+vencidos().length+" recordatorios por WhatsApp");
+    };
+    engancharTabla("#v-hoy");
+  }
+
+  function tarjeta(t,v,i,alerta){
+    return '<div class="cifra'+(alerta?" alerta":"")+'"><span>'+t+'</span><b class="num">'+v+'</b><i>'+i+'</i></div>';
+  }
+
+  function filaEquipo(e){
+    return '<tr data-eq="'+e.id+'">'+
+      '<td><b>'+esc(e.cliente.nom)+'</b><small>'+esc(e.cliente.col)+' · '+esc(e.cliente.tel)+'</small></td>'+
+      '<td><b>'+esc(e.marca)+' '+esc(e.tipo)+'</b><small>'+e.ton+' ton · '+esc(e.refri)+' · '+esc(e.ubi)+'</small></td>'+
+      '<td class="num">'+dl(e.fUltimo)+'</td>'+
+      '<td class="num">'+dl(e.fProximo)+'</td>'+
+      '<td>'+chipEstado(e)+'</td>'+
+      '<td style="text-align:right;white-space:nowrap">'+
+        '<button class="btn fantasma" data-ver="'+e.id+'">Ver</button> '+
+        '<button class="btn wa" data-wa="'+e.id+'"'+(e.atendido?" disabled":"")+'>Avisar</button>'+
+      '</td></tr>';
+  }
+
+  function tablaEquipos(lista, titulo, sub, filtros){
+    lista = lista.slice().sort(function(a,b){ return a.dias-b.dias; });
+    if(!lista.length){
+      return '<div class="panel"><div class="panel-top"><h3>'+titulo+'</h3></div>'+
+             '<div class="vacio"><b>Nada pendiente</b>Todos los equipos están al día.</div></div>';
+    }
+    return '<div class="panel">'+
+      '<div class="panel-top"><div><h3>'+titulo+'</h3>'+(sub?'<p class="sub" style="margin:2px 0 0">'+sub+'</p>':'')+'</div>'+
+      (filtros||"")+'</div>'+
+      '<div class="tabla-scroll"><table><thead><tr>'+
+      '<th>Cliente</th><th>Equipo</th><th>Último servicio</th><th>Le toca</th><th>Estado</th><th></th>'+
+      '</tr></thead><tbody>'+ lista.map(filaEquipo).join("") +'</tbody></table></div></div>';
+  }
+
+  var filtroEq = "todos";
+  function vistaEquipos(){
+    var lista = EQUIPOS.filter(function(e){
+      return filtroEq==="todos" ? true
+           : filtroEq==="pend"  ? (!e.atendido && e.estado!=="aldia")
+           : filtroEq==="r22"   ? e.refri==="R-22"
+           : e.cliente.tipo===filtroEq;
+    });
+    var filtros = '<div class="cola">'+
+      f("todos","Todos")+f("pend","Pendientes")+f("negocio","Negocios")+f("casa","Casas")+f("r22","Con R-22")+
+      '</div>';
+    $("#v-equipos").innerHTML =
+      (filtroEq==="r22" ? '<div class="aviso"><div class="ic">◑</div><div><b>Equipos con R-22</b>'+
+        '<p>Ese gas ya casi no se consigue y sube de precio cada año. Son los candidatos naturales a proponerles cambio de equipo.</p></div></div>' : '')+
+      tablaEquipos(lista, "Equipos registrados", lista.length+" de "+EQUIPOS.length+" equipos", filtros);
+    Array.prototype.forEach.call($("#v-equipos").querySelectorAll("[data-f]"), function(b){
+      b.onclick=function(){ filtroEq=b.dataset.f; vistaEquipos(); };
+    });
+    engancharTabla("#v-equipos");
+    function f(id,txt){ return '<button class="filtro" data-f="'+id+'" aria-pressed="'+(filtroEq===id)+'">'+txt+'</button>'; }
+  }
+
+  function vistaClientes(){
+    var filas = CLIENTES.map(function(c){
+      var eq = EQUIPOS.filter(function(e){ return e.cli===c.id; });
+      var pend = eq.filter(function(e){ return !e.atendido && e.estado!=="aldia"; }).length;
+      var gasto = eq.length * (c.tipo==="negocio"?2400:1500);
+      return '<tr>'+
+        '<td><b>'+esc(c.nom)+'</b><small>'+esc(c.col)+' · cliente desde '+c.desde+'</small></td>'+
+        '<td><span class="chip '+(c.tipo==="negocio"?"azul":"gris")+'">'+(c.tipo==="negocio"?"Negocio":"Casa")+'</span></td>'+
+        '<td class="num">'+eq.length+'</td>'+
+        '<td>'+(pend?'<span class="chip rojo">'+pend+' pendiente'+(pend===1?"":"s")+'</span>':'<span class="chip verde">Al día</span>')+'</td>'+
+        '<td class="num">'+pesos(gasto)+'</td>'+
+        '<td class="num">'+esc(c.tel)+'</td>'+
+      '</tr>';
+    }).join("");
+    $("#v-clientes").innerHTML =
+      '<div class="cifras">'+
+        tarjeta("Clientes", CLIENTES.length, CLIENTES.filter(function(c){return c.tipo==="negocio";}).length+" negocios · "+CLIENTES.filter(function(c){return c.tipo==="casa";}).length+" casas")+
+        tarjeta("Equipos por cliente", (EQUIPOS.length/CLIENTES.length).toFixed(1), "promedio")+
+        tarjeta("Con pendientes", CLIENTES.filter(function(c){ return EQUIPOS.some(function(e){return e.cli===c.id && !e.atendido && e.estado!=="aldia";}); }).length, "hay que buscarlos")+
+      '</div>'+
+      '<div class="panel"><div class="panel-top"><h3>Cartera</h3></div>'+
+      '<div class="tabla-scroll"><table><thead><tr><th>Cliente</th><th>Tipo</th><th>Equipos</th><th>Estado</th><th>Facturado al año</th><th>Teléfono</th></tr></thead>'+
+      '<tbody>'+filas+'</tbody></table></div></div>';
+  }
+
+  function vistaInventario(){
+    var bajo = REFACCIONES.filter(function(r){ return r.stock < r.min; });
+    var valor = REFACCIONES.reduce(function(a,r){ return a + r.stock*r.costo; },0);
+    var filas = REFACCIONES.slice().sort(function(a,b){ return (a.stock/Math.max(a.min,1)) - (b.stock/Math.max(b.min,1)); }).map(function(r){
+      var pct = Math.min(100, Math.round(r.stock / Math.max(r.min,1) * 100));
+      var col = r.stock===0 ? "var(--rojo)" : (r.stock<r.min ? "var(--ambar)" : "var(--verde)");
+      var et  = r.stock===0 ? '<span class="chip rojo">Agotado</span>'
+              : r.stock<r.min ? '<span class="chip ambar">Bajo mínimo</span>'
+              : '<span class="chip verde">Suficiente</span>';
+      return '<tr>'+
+        '<td><b>'+esc(r.nom)+'</b><small class="num">'+esc(r.sku)+'</small></td>'+
+        '<td><b class="num">'+r.stock+'</b><div class="barra"><i style="width:'+pct+'%;background:'+col+'"></i></div></td>'+
+        '<td class="num">'+r.min+'</td>'+
+        '<td>'+et+'</td>'+
+        '<td class="num">'+pesos(r.costo)+'</td>'+
+        '<td class="num">'+pesos(r.stock*r.costo)+'</td>'+
+      '</tr>';
+    }).join("");
+    $("#v-inventario").innerHTML =
+      (bajo.length ? '<div class="aviso"><div class="ic">▤</div><div><b>'+bajo.length+' refacciones bajo mínimo</b>'+
+        '<p>Incluye el R-22, que está en cero. Si entra una urgencia de un equipo viejo, hoy no se podría resolver.</p></div>'+
+        '<button class="btn" id="ordenar">Armar pedido</button></div>' : '')+
+      '<div class="cifras">'+
+        tarjeta("Claves", REFACCIONES.length, "en catálogo")+
+        tarjeta("Bajo mínimo", bajo.length, "hay que pedir", bajo.length>0)+
+        tarjeta("Valor del inventario", pesos(valor), "a costo")+
+      '</div>'+
+      '<div class="panel"><div class="panel-top"><h3>Existencias</h3></div>'+
+      '<div class="tabla-scroll"><table><thead><tr><th>Refacción</th><th>En existencia</th><th>Mínimo</th><th>Estado</th><th>Costo</th><th>Valor</th></tr></thead>'+
+      '<tbody>'+filas+'</tbody></table></div></div>';
+    var o=$("#ordenar");
+    if(o) o.onclick=function(){ avisar("Pedido armado con "+bajo.length+" claves"); };
+  }
+
+  function vistaNumeros(){
+    var max = Math.max.apply(null, INGRESOS.map(function(m){ return m.monto; }));
+    var total = INGRESOS.reduce(function(a,m){ return a+m.monto; },0);
+    var barras = INGRESOS.map(function(m){
+      var h = Math.round(m.monto/max*140);
+      var act = m.mes==="Ago";
+      return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:8px">'+
+        '<b class="num" style="font-size:12px;color:var(--gris);font-weight:600">'+pesos(m.monto)+'</b>'+
+        '<div style="width:100%;max-width:56px;height:'+h+'px;border-radius:8px 8px 3px 3px;background:'+
+          (act?"linear-gradient(180deg,var(--cyan),var(--azul))":"#d6e4ef")+'"></div>'+
+        '<span style="font-size:12px;font-weight:600;color:'+(act?"var(--tinta)":"var(--gris)")+'">'+m.mes+'</span>'+
+      '</div>';
+    }).join("");
+    var filas = INGRESOS.slice().reverse().map(function(m){
+      return '<tr><td><b>'+m.mes+' 2026</b></td>'+
+        '<td class="num">'+m.prev+'</td><td class="num">'+m.corr+'</td>'+
+        '<td class="num">'+(m.prev+m.corr)+'</td>'+
+        '<td class="num"><b>'+pesos(m.monto)+'</b></td>'+
+        '<td class="num">'+pesos(Math.round(m.monto/(m.prev+m.corr)))+'</td></tr>';
+    }).join("");
+    $("#v-numeros").innerHTML =
+      '<div class="cifras">'+
+        tarjeta("Últimos 6 meses", pesos(total), "cobrado")+
+        tarjeta("Servicio promedio", pesos(Math.round(total/INGRESOS.reduce(function(a,m){return a+m.prev+m.corr;},0))), "por visita")+
+        tarjeta("Preventivo", Math.round(INGRESOS.reduce(function(a,m){return a+m.prev;},0)/INGRESOS.reduce(function(a,m){return a+m.prev+m.corr;},0)*100)+"%", "del total de servicios")+
+      '</div>'+
+      '<div class="panel"><div class="panel-top"><div><h3>Cobrado por mes</h3>'+
+      '<p class="sub" style="margin:2px 0 0">Mayo a julio es temporada alta en Cuernavaca; el preventivo es lo que sostiene los meses flojos.</p></div></div>'+
+      '<div style="padding:26px 22px;display:flex;align-items:flex-end;gap:14px;height:220px">'+barras+'</div></div>'+
+      '<div class="panel"><div class="panel-top"><h3>Desglose</h3></div>'+
+      '<div class="tabla-scroll"><table><thead><tr><th>Mes</th><th>Preventivos</th><th>Correctivos</th><th>Total visitas</th><th>Cobrado</th><th>Por visita</th></tr></thead>'+
+      '<tbody>'+filas+'</tbody></table></div></div>';
+  }
+
+  // -------------------------------------------------------------- la ficha
+  function engancharTabla(sel){
+    var raiz=$(sel);
+    Array.prototype.forEach.call(raiz.querySelectorAll("[data-ver]"), function(b){
+      b.onclick=function(ev){ ev.stopPropagation(); abrirFicha(+b.dataset.ver); };
+    });
+    Array.prototype.forEach.call(raiz.querySelectorAll("[data-wa]"), function(b){
+      b.onclick=function(ev){
+        ev.stopPropagation();
+        var e = EQUIPOS.filter(function(x){return x.id===+b.dataset.wa;})[0];
+        e.atendido=true;
+        avisar("Recordatorio enviado a "+e.cliente.nom);
+        pintarNav(); pintar(actual);
+      };
+    });
+  }
+
+  function abrirFicha(id){
+    var e = EQUIPOS.filter(function(x){return x.id===id;})[0];
+    var h = HISTORIAL[id] || [];
+    var linea = h.length
+      ? h.map(function(r){
+          var d = new Date(r[0]+"T12:00:00");
+          return '<div class="linea-t"><time>'+dl(d)+' · '+pesos(r[3])+'</time><b>'+esc(r[1])+'</b><p>'+esc(r[2])+'</p></div>';
+        }).join("")
+      : '<p style="font-size:13px;color:var(--gris)">Sin servicios registrados todavía. El primero se registra desde el celular al terminar la visita.</p>';
+
+    $("#ficha").innerHTML =
+      '<div class="fx-top"><div><h3>'+esc(e.marca)+' '+esc(e.tipo)+' · '+e.ton+' ton</h3>'+
+      '<p>'+esc(e.cliente.nom)+' — '+esc(e.ubi)+'</p></div><button id="cerrarFicha" aria-label="Cerrar">×</button></div>'+
+      '<div class="fx-cuerpo">'+
+        '<div class="datos">'+
+          dato("Refrigerante", e.refri + (e.refri==="R-22" ? " (descontinuado)" : ""))+
+          dato("Cada cuánto", e.cada+" meses")+
+          dato("Último servicio", dl(e.fUltimo))+
+          dato("Le toca", dl(e.fProximo))+
+          dato("Colonia", e.cliente.col)+
+          dato("Teléfono", e.cliente.tel)+
+        '</div>'+
+        '<h2 class="tit">Historial</h2><p class="sub">Lo que se le ha hecho a este equipo</p>'+
+        linea+
+      '</div>'+
+      '<div class="fx-pie">'+
+        '<button class="btn wa" id="fxWa"'+(e.atendido?" disabled":"")+'>Avisar por WhatsApp</button>'+
+        '<button class="btn fantasma" id="fxCerrar">Cerrar</button>'+
+      '</div>';
+    $("#ficha").showModal();
+    $("#cerrarFicha").onclick = $("#fxCerrar").onclick = function(){ $("#ficha").close(); };
+    $("#fxWa").onclick = function(){
+      e.atendido=true; $("#ficha").close();
+      avisar("Recordatorio enviado a "+e.cliente.nom);
+      pintarNav(); pintar(actual);
+    };
+    function dato(t,v){ return '<div><span>'+t+'</span><b>'+esc(v)+'</b></div>'; }
+  }
+
+  // ------------------------------------------------------------------ arranque
+  function pintar(id){
+    if(id==="hoy") vistaHoy();
+    else if(id==="equipos") vistaEquipos();
+    else if(id==="clientes") vistaClientes();
+    else if(id==="inventario") vistaInventario();
+    else if(id==="numeros") vistaNumeros();
+  }
+
+  $("#fechaHoy").textContent = HOY.getDate()+" de "+MESL[HOY.getMonth()]+", "+HOY.getFullYear();
+  pintarNav();
+  pintar("hoy");
+})();
+</script>
+</body>
+</html>
